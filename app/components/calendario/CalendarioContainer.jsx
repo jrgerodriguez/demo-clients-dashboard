@@ -128,7 +128,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
           return
         }
         if (!data.fecha) {
-            setError("Por favor selecciona una fecha para la cita")
+            setError("Elije una fecha")
             setIsSubmitting(false)
             return
         }
@@ -264,7 +264,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
             {daysInMonth.map(date => {
               const dateStr = getLocalDateString(date)
               const dayCitas = citasByDate[dateStr] || []
-              const isToday = date.toDateString() === new Date().toDateString()
+              const isToday = isClient && date.toDateString() === new Date().toDateString()
               
               return (
                 <div 
@@ -345,6 +345,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
                {weekDays.map(date => {
                  const dateStr = getLocalDateString(date)
                  const dayCitas = citasByDate[dateStr] || []
+                 const isToday = isClient && date.toDateString() === new Date().toDateString()
                  return (
                    <div 
                     key={dateStr} 
