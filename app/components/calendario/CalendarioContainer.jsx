@@ -16,6 +16,15 @@ import { crearCita, editarCita, eliminarCita } from '@/lib/citas'
 import { useRouter } from 'next/navigation'
 import EliminarClienteModal from '../clientes/EliminarClienteModal'
 
+// Helper to get YYYY-MM-DD in local time
+const getLocalDateString = (date) => {
+  if (!date) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function CalendarioContainer({ inicialCitas, clientes }) {
   const [view, setView] = useState('month') // 'month' | 'week'
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -72,14 +81,14 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
   }
 
   const handleDayClick = (date) => {
-    setSelectedDate(date.toISOString().split('T')[0])
+    setSelectedDate(getLocalDateString(date))
     setSelectedCita(null)
     setError(null)
     setIsModalOpen(true)
   }
 
   const handleAddCita = (date) => {
-    setSelectedDate(date.toISOString().split('T')[0])
+    setSelectedDate(getLocalDateString(date))
     setSelectedCita(null)
     setError(null)
     setIsModalOpen(true)
@@ -205,7 +214,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
           <button 
             onClick={() => {
               setSelectedCita(null)
-              setSelectedDate(new Date().toISOString().split('T')[0])
+              setSelectedDate(getLocalDateString(new Date()))
               setIsModalOpen(true)
             }}
             className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
@@ -241,7 +250,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
             })()}
 
             {daysInMonth.map(date => {
-              const dateStr = date.toISOString().split('T')[0]
+              const dateStr = getLocalDateString(date)
               const dayCitas = citasByDate[dateStr] || []
               const isToday = date.toDateString() === new Date().toDateString()
               
@@ -322,7 +331,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
              
              <div className="grid grid-cols-7 flex-1 min-h-[500px]">
                {weekDays.map(date => {
-                 const dateStr = date.toISOString().split('T')[0]
+                 const dateStr = getLocalDateString(date)
                  const dayCitas = citasByDate[dateStr] || []
                  return (
                    <div 
