@@ -128,7 +128,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
           return
         }
         if (!data.fecha) {
-            setError("Elije una fecha")
+            setError("selecciona fecha y no esta")
             setIsSubmitting(false)
             return
         }
