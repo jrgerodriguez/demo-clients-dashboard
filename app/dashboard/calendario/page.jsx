@@ -10,12 +10,12 @@ export default async function CalendarioPage() {
         <section className="fade-in-up space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Calendario</h1>
-                    <p className="text-slate-500 mt-1">Organiza y gestiona las citas de tus clientes.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Calendario</h1>
+                    <p className="text-slate-500 text-sm mt-1">Organiza y gestiona las citas de tus clientes.</p>
                 </div>
             </div>
 
             <CalendarioContainer inicialCitas={citas} clientes={clientes} />
         </section>
     )
-}
+}
