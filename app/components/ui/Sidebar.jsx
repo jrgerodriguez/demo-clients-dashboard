@@ -44,7 +44,7 @@ export default function Sidebar({ isOpen, onClose }) {
           </div>
           {/* Close button for mobile */}
           <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-white transition-colors">
-            <FiUserX size={20} /> {/* Or some close icon, using FiUserX since it was already imported, but I'll add an X later if needed */}
+            {/* <FiUserX size={20} /> Or some close icon, using FiUserX since it was already imported, but I'll add an X later if needed */}
           </button>
         </div>
         
