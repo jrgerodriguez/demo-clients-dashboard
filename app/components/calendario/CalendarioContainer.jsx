@@ -28,6 +28,7 @@ const getLocalDateString = (date) => {
 export default function CalendarioContainer({ inicialCitas, clientes }) {
   const [view, setView] = useState('month') // 'month' | 'week'
   const [currentDate, setCurrentDate] = useState(new Date())
+  const [isClient, setIsClient] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedCita, setSelectedCita] = useState(null)
@@ -35,6 +36,12 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const router = useRouter()
+
+  // Ensure local time on client side to avoid SSR/Vercel date mismatch
+  useEffect(() => {
+    setIsClient(true)
+    setCurrentDate(new Date())
+  }, [])
 
   // Helper: Get days in month
   const daysInMonth = useMemo(() => {
@@ -119,6 +126,11 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
           setError("Por favor selecciona un cliente")
           setIsSubmitting(false)
           return
+        }
+        if (!data.fecha) {
+            setError("Por favor selecciona una fecha para la cita")
+            setIsSubmitting(false)
+            return
         }
         await crearCita(data)
       }
