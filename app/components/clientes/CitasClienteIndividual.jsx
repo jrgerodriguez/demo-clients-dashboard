@@ -222,22 +222,34 @@ const CitasClienteIndividual = ({ citas }) => {
       <Modal 
         isOpen={isDeleteModalOpen} 
         onClose={() => setIsDeleteModalOpen(false)} 
-        titulo="Eliminar Cita" 
+        titulo="Eliminar Cita"
         mensaje="¿Estás seguro de que deseas eliminar esta cita? Esta acción no se puede deshacer."
       >
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-          <button
-            onClick={() => setIsDeleteModalOpen(false)}
-            className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={onConfirmDelete}
-            className="px-6 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-200 transition-all"
-          >
-            Confirmar Eliminación
-          </button>
+        <div className="space-y-6">
+            <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                <p className="text-sm text-red-700 font-medium">
+                    Vas a eliminar esta cita programada
+                </p>
+                {selectedCita && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Fecha: {selectedCita.fecha} a las {selectedCita.hora_inicio}
+                  </p>
+                )}
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                    onClick={() => setIsDeleteModalOpen(false)}
+                    className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                >
+                    Cancelar
+                </button>
+                <button
+                    onClick={onConfirmDelete}
+                    className="px-6 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md shadow-red-200 transition-all"
+                >
+                    Confirmar Eliminación
+                </button>
+            </div>
         </div>
       </Modal>
     </div>

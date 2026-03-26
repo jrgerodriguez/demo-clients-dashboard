@@ -25,6 +25,8 @@ export default function CitaForm({
     estado: initialData.estado || 'pendiente'
   })
 
+  const [validationError, setValidationError] = useState('')
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -32,6 +34,10 @@ export default function CitaForm({
 
   const handleCustomChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }))
+    // Limpiar error de validación cuando se cambia la fecha
+    if (name === 'fecha' && validationError) {
+      setValidationError('')
+    }
   }
 
   const handleSubmit = (e) => {
@@ -39,10 +45,11 @@ export default function CitaForm({
     
     // Validar que la fecha esté seleccionada
     if (!formData.fecha) {
-      alert('Selecciona una fecha')
+      setValidationError('Selecciona una fecha')
       return
     }
     
+    setValidationError('')
     onSubmit(formData)
   }
 
@@ -72,11 +79,16 @@ export default function CitaForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* Fecha */}
-        <CustomDatePicker 
-          value={formData.fecha}
-          onChange={(val) => handleCustomChange('fecha', val)}
-          label="Fecha de Cita"
-        />
+        <div>
+          <CustomDatePicker 
+            value={formData.fecha}
+            onChange={(val) => handleCustomChange('fecha', val)}
+            label="Fecha de Cita"
+          />
+          {validationError && (
+            <p className="text-xs text-red-600 font-bold mt-1.5 ml-1">{validationError}</p>
+          )}
+        </div>
 
         {/* Hora (Circular Clock) */}
 
