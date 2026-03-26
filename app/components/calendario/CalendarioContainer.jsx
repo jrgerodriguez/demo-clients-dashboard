@@ -361,7 +361,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
                             ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
                             : 'bg-blue-50 border-blue-100 text-blue-800'}`}
                        >
-                         <div className="flex items-center justify-between mb-1.5">
+                         <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-1.5 gap-1 lg:gap-0">
                            <span className="text-[10px] font-bold opacity-60 flex items-center gap-1">
                              <FiClock size={12} /> {cita.hora_inicio.substring(0, 5)}
                            </span>

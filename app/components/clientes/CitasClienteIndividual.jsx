@@ -122,7 +122,7 @@ const CitasClienteIndividual = ({ citas }) => {
             .sort((a, b) => {
               const dateA = new Date(a.fecha + 'T' + a.hora_inicio)
               const dateB = new Date(b.fecha + 'T' + b.hora_inicio)
-              return dateA - dateB
+              return dateB - dateA
             })
             .map(cita => {
               const fechaObj = new Date(cita.fecha + 'T00:00:00')
