@@ -34,7 +34,7 @@ export default async function InactivosPage() {
                                         {cliente.nombre_completo.charAt(0)}
                                     </div>
                                     <div>
-                                        <p className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                                        <p className="text-sm font-medium text-slate-900 group-hover:text-blue-600 transition-colors">
                                             {cliente.nombre_completo}
                                         </p>
                                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">

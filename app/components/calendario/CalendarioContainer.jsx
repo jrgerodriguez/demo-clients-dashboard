@@ -288,7 +288,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
                       >
                         <div className="flex items-center justify-between gap-1 overflow-hidden">
                           <span className="font-bold truncate">{cita.clientes?.nombre_completo || 'Cliente'}</span>
-                          <div className="hidden group-hover/item:flex items-center gap-1 shrink-0">
+                          <div className="flex opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity items-center gap-1 shrink-0">
                              <button onClick={(e) => handleDeleteClick(e, cita)} className="p-0.5 hover:text-red-600 transition-colors">
                                 <FiTrash2 size={10} />
                              </button>
@@ -365,7 +365,7 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
                            <span className="text-[10px] font-bold opacity-60 flex items-center gap-1">
                              <FiClock size={12} /> {cita.hora_inicio.substring(0, 5)}
                            </span>
-                           <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                           <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity">
                               <button onClick={(e) => handleEditCita(e, cita)} className="p-1 hover:text-blue-600 transition-colors">
                                 <FiEdit size={12} />
                               </button>

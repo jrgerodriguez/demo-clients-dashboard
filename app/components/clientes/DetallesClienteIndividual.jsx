@@ -93,7 +93,7 @@ export default function DetallesClienteIndividual({ cliente, citas }) {
               {initials}
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
                 {cliente.nombre_completo}
               </h1>
               <p className="text-[10px] sm:text-sm text-slate-500 mt-0.5 uppercase tracking-wider font-semibold">Perfil del Cliente</p>
