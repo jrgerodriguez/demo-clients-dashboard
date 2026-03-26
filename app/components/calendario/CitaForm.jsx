@@ -36,7 +36,13 @@ export default function CitaForm({
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Validation is handled by parent if needed, or by required attributes
+    
+    // Validar que la fecha esté seleccionada
+    if (!formData.fecha) {
+      alert('Selecciona una fecha')
+      return
+    }
+    
     onSubmit(formData)
   }
 
