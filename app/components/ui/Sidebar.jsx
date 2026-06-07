@@ -1,7 +1,8 @@
 'use client'
-import { FiHome, FiUsers, FiCalendar, FiBarChart2, FiUserX } from 'react-icons/fi'
+import { FiHome, FiUsers, FiCalendar, FiBarChart2, FiUserX, FiLogOut } from 'react-icons/fi'
 import Link from "next/link"
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 const links = [
   { href: '/dashboard',           label: 'Dashboard',   icon: FiHome },
@@ -13,6 +14,13 @@ const links = [
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  async function handleLogout() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   return (
     <>
@@ -38,7 +46,7 @@ export default function Sidebar({ isOpen, onClose }) {
               <FiBarChart2 className="text-white" size={18} />
             </div>
             <div>
-              <p className="text-white font-bold text-sm leading-none tracking-tight">CRM Pro</p>
+              <p className="text-white font-bold text-sm leading-none tracking-tight">ClientesPro</p>
               <p className="text-slate-400 text-xs mt-0.5">Sistema de Gestión</p>
             </div>
           </div>
@@ -82,10 +90,17 @@ export default function Sidebar({ isOpen, onClose }) {
         </nav>
 
         {/* Footer */}
-        <div className="px-4 py-4 border-t border-slate-700/60">
+        <div className="px-4 py-4 border-t border-slate-700/60 space-y-2">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-150"
+          >
+            <FiLogOut size={18} />
+            Cerrar sesión
+          </button>
           <div className="rounded-lg bg-slate-800 px-4 py-3">
             <p className="text-slate-400 text-xs">Versión</p>
-            <p className="text-slate-200 text-sm font-semibold mt-0.5">CRM Pro v1.0</p>
+            <p className="text-slate-200 text-sm font-semibold mt-0.5">ClientesPro v1.0</p>
           </div>
         </div>
       </aside>

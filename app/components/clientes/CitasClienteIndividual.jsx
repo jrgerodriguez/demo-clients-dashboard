@@ -165,10 +165,16 @@ const CitasClienteIndividual = ({ citas }) => {
                           </span>
                         </>
                       )}
+                      <span className="text-slate-300 text-xs">·</span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
+                    {cita.costo && (
+                      <>
+                        <span className="flex items-center gap-1.5 text-sm font-bold text-black bg-slate-50 px-2 py-1 rounded-lg">${Number(cita.costo).toFixed(2)}</span>
+                      </>
+                    )}
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${estadoBadge(cita.estado)} mr-1`}>
                       {cita.estado}
                     </span>

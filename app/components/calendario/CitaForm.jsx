@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FiClock, FiFileText, FiCreditCard } from 'react-icons/fi'
+import { FiClock, FiFileText, FiCreditCard, FiDollarSign } from 'react-icons/fi'
 import SmoothSelect from '../ui/SmoothSelect'
 import CircularClock from '../ui/CircularClock'
 import CustomDatePicker from '../ui/CustomDatePicker'
@@ -22,7 +22,8 @@ export default function CitaForm({
     duracion: initialData.duracion || '60',
     notas: initialData.notas || '',
     metodo_pago: initialData.metodo_pago || 'efectivo',
-    estado: initialData.estado || 'pendiente'
+    estado: initialData.estado || 'pendiente',
+    costo: initialData.costo || ''
   })
 
   const [validationError, setValidationError] = useState('')
@@ -120,27 +121,46 @@ export default function CitaForm({
           </div>
         </div>
 
-        {/* Método de Pago */}
+        {/* Costo */}
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
-            Método de Pago
+            Costo ($)
           </label>
           <div className="relative">
-            <FiCreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <select
-              name="metodo_pago"
-              value={formData.metodo_pago}
+            <FiDollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input
+              type="number"
+              name="costo"
+              min="0"
+              step="0.01"
+              value={formData.costo}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none text-slate-700 font-medium"
-            >
-              <option value="efectivo">Efectivo</option>
-              <option value="tarjeta">Tarjeta</option>
-              <option value="transferencia">Transferencia</option>
-            </select>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-               <FiClock size={14} className="opacity-0" /> {/* Spacer */}
-               <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-slate-400"></div>
-            </div>
+              placeholder="0.00"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Método de Pago */}
+      <div className="space-y-1.5">
+        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
+          Método de Pago
+        </label>
+        <div className="relative">
+          <FiCreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <select
+            name="metodo_pago"
+            value={formData.metodo_pago}
+            onChange={handleChange}
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none text-slate-700 font-medium"
+          >
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <div className="w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-slate-400"></div>
           </div>
         </div>
       </div>
