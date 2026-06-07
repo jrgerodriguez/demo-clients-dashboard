@@ -19,7 +19,8 @@ const COLORES = {
 function formatFecha(fecha) {
   return new Date(fecha).toLocaleString('es-SV', {
     day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
+    hour: '2-digit', minute: '2-digit',
+    timeZone: 'America/El_Salvador'
   })
 }
 
