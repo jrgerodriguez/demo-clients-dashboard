@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { FiUserPlus, FiTrash2, FiShield, FiUser, FiMail } from 'react-icons/fi'
+import { FiUserPlus, FiTrash2, FiShield, FiUser, FiMail, FiType } from 'react-icons/fi'
 import { agregarUsuario, eliminarUsuario, cambiarRol } from '@/lib/usuarios'
 import { useRouter } from 'next/navigation'
 import { useRol } from '@/app/context/RolContext'
 
 export default function GestionUsuarios({ usuarios }) {
-  const [email, setEmail]   = useState('')
-  const [rol, setRol]       = useState('user')
+  const [email,  setEmail]  = useState('')
+  const [nombre, setNombre] = useState('')
+  const [rol,    setRol]    = useState('user')
   const [loading, setLoading] = useState(false)
-  const [error, setError]   = useState('')
+  const [error,  setError]  = useState('')
   const router  = useRouter()
   const { email: miEmail } = useRol()
 
@@ -20,8 +21,9 @@ export default function GestionUsuarios({ usuarios }) {
     setLoading(true)
     setError('')
     try {
-      await agregarUsuario(email.trim().toLowerCase(), rol)
+      await agregarUsuario(email.trim().toLowerCase(), rol, nombre.trim() || null)
       setEmail('')
+      setNombre('')
       setRol('user')
       router.refresh()
     } catch (err) {
@@ -53,33 +55,47 @@ export default function GestionUsuarios({ usuarios }) {
           </div>
           Agregar acceso
         </h2>
-        <form onSubmit={handleAgregar} className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-            <input
-              type="email"
-              placeholder="correo@gmail.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
-            />
+        <form onSubmit={handleAgregar} className="flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+              <input
+                type="email"
+                placeholder="correo@gmail.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+              />
+            </div>
+            <div className="relative flex-1">
+              <FiType className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+              <input
+                type="text"
+                placeholder="Nombre completo"
+                value={nombre}
+                onChange={e => setNombre(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+              />
+            </div>
           </div>
-          <select
-            value={rol}
-            onChange={e => setRol(e.target.value)}
-            className="px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
-          >
-            <option value="user">Usuario</option>
-            <option value="admin">Admin</option>
-          </select>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-all disabled:opacity-50 shrink-0"
-          >
-            {loading ? 'Agregando...' : 'Agregar'}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <select
+              value={rol}
+              onChange={e => setRol(e.target.value)}
+              className="px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+            >
+              <option value="user">Usuario</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-all disabled:opacity-50 shrink-0"
+            >
+              {loading ? 'Agregando...' : 'Agregar'}
+            </button>
+          </div>
         </form>
         {error && <p className="text-xs text-red-500 mt-2 font-medium">{error}</p>}
       </div>

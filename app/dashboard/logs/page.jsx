@@ -89,7 +89,10 @@ async function LogsContent({ searchParams }) {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-slate-600 max-w-xs truncate">{log.detalles || '—'}</td>
-                    <td className="px-5 py-3.5 text-slate-500 text-xs">{log.usuario_email}</td>
+                    <td className="px-5 py-3.5 text-xs">
+                      <span className="font-medium text-slate-700">{log.usuario_nombre || log.usuario_email}</span>
+                      {log.usuario_nombre && <span className="block text-slate-400">{log.usuario_email}</span>}
+                    </td>
                     <td className="px-5 py-3.5 text-slate-400 text-xs whitespace-nowrap">{formatFecha(log.created_at)}</td>
                   </tr>
                 ))}
