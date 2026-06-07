@@ -36,6 +36,8 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
   const [selectedDate, setSelectedDate] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [viewCita, setViewCita] = useState(null)
   const router = useRouter()
   const { rol } = useRol()
   const isAdmin = rol === 'admin'
@@ -109,6 +111,12 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
     setSelectedCita(cita)
     setError(null)
     setIsModalOpen(true)
+  }
+
+  const handleViewCita = (event, cita) => {
+    event.stopPropagation()
+    setViewCita(cita)
+    setIsViewModalOpen(true)
   }
 
   const handleDeleteClick = (event, cita) => {
@@ -285,12 +293,11 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
                     {dayCitas.map(cita => (
                       <div
                         key={cita.id}
-                        onClick={(e) => isAdmin && handleEditCita(e, cita)}
-                        className={`group/item flex flex-col p-1.5 rounded-lg border text-[10px] leading-tight transition-all
+                        onClick={(e) => isAdmin ? handleEditCita(e, cita) : handleViewCita(e, cita)}
+                        className={`group/item flex flex-col p-1.5 rounded-lg border text-[10px] leading-tight transition-all cursor-pointer
                           ${cita.estado === 'completado'
                             ? 'bg-emerald-50 border-emerald-100 text-emerald-700'
-                            : 'bg-blue-50 border-blue-100 text-blue-700'}
-                          ${isAdmin ? 'cursor-pointer' : ''}`}
+                            : 'bg-blue-50 border-blue-100 text-blue-700'}`}
                       >
                         <div className="flex items-center justify-between gap-1 overflow-hidden">
                           <span className="font-bold truncate">{cita.clientes?.nombre_completo || 'Cliente'}</span>
@@ -365,12 +372,11 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
                      {dayCitas.map(cita => (
                        <div
                         key={cita.id}
-                        onClick={(e) => isAdmin && handleEditCita(e, cita)}
-                        className={`group/item p-3 rounded-xl border transition-all hover:shadow-md
+                        onClick={(e) => isAdmin ? handleEditCita(e, cita) : handleViewCita(e, cita)}
+                        className={`group/item p-3 rounded-xl border transition-all hover:shadow-md cursor-pointer
                           ${cita.estado === 'completado'
                             ? 'bg-emerald-50 border-emerald-100 text-emerald-800'
-                            : 'bg-blue-50 border-blue-100 text-blue-800'}
-                          ${isAdmin ? 'cursor-pointer' : ''}`}
+                            : 'bg-blue-50 border-blue-100 text-blue-800'}`}
                        >
                          <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-1.5 gap-1 lg:gap-0">
                            <span className="text-[10px] font-bold opacity-60 flex items-center gap-1">
@@ -425,6 +431,49 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
           onSubmit={onSubmit}
         />
 
+      </Modal>
+
+      {/* View-only Modal (for users) */}
+      <Modal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        titulo="Detalle de Cita"
+        mensaje={viewCita?.clientes?.nombre_completo || ''}
+      >
+        {viewCita && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Fecha</p>
+                <p className="text-sm font-semibold text-slate-800">{viewCita.fecha}</p>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Hora</p>
+                <p className="text-sm font-semibold text-slate-800">{viewCita.hora_inicio?.substring(0, 5)}</p>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Duración</p>
+                <p className="text-sm font-semibold text-slate-800">{viewCita.duracion} min</p>
+              </div>
+            </div>
+
+            {viewCita.notas && (
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Notas</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{viewCita.notas}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2 border-t border-slate-100">
+              <button
+                onClick={() => setIsViewModalOpen(false)}
+                className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
       </Modal>
 
       {/* Delete Confirmation Modal */}
