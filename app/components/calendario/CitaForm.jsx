@@ -1,22 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FiClock, FiFileText, FiCreditCard, FiDollarSign } from 'react-icons/fi'
+import { PiDogBold } from 'react-icons/pi'
 import SmoothSelect from '../ui/SmoothSelect'
 import CircularClock from '../ui/CircularClock'
 import CustomDatePicker from '../ui/CustomDatePicker'
+import { obtenerPerrosPorCliente } from '@/lib/perros'
 
-export default function CitaForm({ 
-  initialData = {}, 
-  onSubmit, 
-  onCancel, 
-  clientes = [], 
+export default function CitaForm({
+  initialData = {},
+  onSubmit,
+  onCancel,
+  clientes = [],
   isSubmitting = false,
   fixedClienteId = null,
+  perros: perrosProp = [],
   error = null
 }) {
   const [formData, setFormData] = useState({
     cliente_id: fixedClienteId || initialData.cliente_id || '',
+    perro_id: initialData.perro_id || '',
     fecha: initialData.fecha || '',
     hora_inicio: initialData.hora_inicio || '09:00',
     duracion: initialData.duracion || '60',
@@ -26,7 +30,18 @@ export default function CitaForm({
     costo: initialData.costo || ''
   })
 
+  const [perrosDisponibles, setPerrosDisponibles] = useState(perrosProp)
+
   const [validationError, setValidationError] = useState('')
+
+  // En el calendario (sin cliente fijo), carga perros cuando cambia el cliente
+  useEffect(() => {
+    if (fixedClienteId) return
+    if (!formData.cliente_id) { setPerrosDisponibles([]); return }
+    obtenerPerrosPorCliente(formData.cliente_id)
+      .then(setPerrosDisponibles)
+      .catch(() => setPerrosDisponibles([]))
+  }, [formData.cliente_id, fixedClienteId])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -34,11 +49,13 @@ export default function CitaForm({
   }
 
   const handleCustomChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }))
-    // Limpiar error de validación cuando se cambia la fecha
-    if (name === 'fecha' && validationError) {
-      setValidationError('')
-    }
+    setFormData(prev => {
+      const next = { ...prev, [name]: value }
+      // Al cambiar de cliente en el calendario, resetea el perro seleccionado
+      if (name === 'cliente_id') next.perro_id = ''
+      return next
+    })
+    if (name === 'fecha' && validationError) setValidationError('')
   }
 
   const handleSubmit = (e) => {
@@ -67,15 +84,46 @@ export default function CitaForm({
       )}
 
       {/* Cliente Selection (if not fixed) */}
-
       {!fixedClienteId && (
-        <SmoothSelect 
+        <SmoothSelect
           options={clientes}
           value={formData.cliente_id}
           onChange={(val) => handleCustomChange('cliente_id', val)}
           label="Cliente"
           placeholder="Seleccionar cliente para la cita..."
         />
+      )}
+
+      {/* Perro */}
+      {perrosDisponibles.length > 0 && (
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">
+            <PiDogBold size={13} />
+            Perro
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {perrosDisponibles.map(perro => (
+              <button
+                key={perro.id}
+                type="button"
+                onClick={() => handleCustomChange('perro_id', formData.perro_id === perro.id ? '' : perro.id)}
+                className={`flex flex-col items-start px-3 py-2.5 rounded-xl border text-left transition-all
+                  ${formData.perro_id === perro.id
+                    ? 'bg-amber-50 border-amber-300 ring-1 ring-amber-300'
+                    : 'bg-slate-50 border-slate-200 hover:border-amber-200 hover:bg-amber-50/40'}`}
+              >
+                <span className="text-xs font-bold text-slate-800">{perro.nombre}</span>
+                {perro.raza && <span className="text-[10px] text-slate-400 mt-0.5">{perro.raza}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!fixedClienteId && formData.cliente_id && perrosDisponibles.length === 0 && (
+        <p className="text-xs text-slate-400 flex items-center gap-1.5">
+          <PiDogBold size={12} /> Este cliente no tiene perros registrados
+        </p>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

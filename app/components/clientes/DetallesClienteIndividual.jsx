@@ -8,10 +8,11 @@ import EditarClienteFormulario from "./EditarClienteFormulario"
 import { useParams, useRouter } from "next/navigation"
 import { editarCliente, eliminarClientePorId } from "@/lib/clientes"
 import CitasClienteIndividual from "./CitasClienteIndividual"
+import PerrosClienteIndividual from "./PerrosClienteIndividual"
 import Modal from "../ui/Modal"
 import EliminarClienteModal from "./EliminarClienteModal"
 
-export default function DetallesClienteIndividual({ cliente, citas }) {
+export default function DetallesClienteIndividual({ cliente, citas, perros }) {
   const [editOpen, setEditOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -187,8 +188,11 @@ export default function DetallesClienteIndividual({ cliente, citas }) {
           )}
         </div>
 
+        {/* Perros */}
+        <PerrosClienteIndividual perros={perros} clienteId={cliente.id} />
+
         {/* Citas */}
-        <CitasClienteIndividual citas={citas} cliente={cliente} />
+        <CitasClienteIndividual citas={citas} cliente={cliente} perros={perros} />
       </div>
 
       {/* Edit panel */}

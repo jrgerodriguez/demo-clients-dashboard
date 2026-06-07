@@ -16,6 +16,7 @@ import { crearCita, editarCita, eliminarCita } from '@/lib/citas'
 import { useRouter } from 'next/navigation'
 import EliminarClienteModal from '../clientes/EliminarClienteModal'
 import { useRol } from '@/app/context/RolContext'
+import { PiDogBold } from 'react-icons/pi'
 
 // Helper to get YYYY-MM-DD in local time
 const getLocalDateString = (date) => {
@@ -456,6 +457,19 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
                 <p className="text-sm font-semibold text-slate-800">{viewCita.duracion} min</p>
               </div>
             </div>
+
+            {viewCita.perros?.nombre && (
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-amber-50 border border-amber-100 rounded-xl">
+                <PiDogBold className="text-amber-500 shrink-0" size={15} />
+                <div>
+                  <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Servicio por</p>
+                  <p className="text-sm font-semibold text-slate-800">
+                    {viewCita.perros.nombre}
+                    {viewCita.perros.raza && <span className="text-slate-400 font-normal"> · {viewCita.perros.raza}</span>}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {viewCita.notas && (
               <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">

@@ -8,6 +8,7 @@ import { useState } from "react";
 import Modal from "../ui/Modal";
 import FormularioNuevoCliente from "./FormularioNuevoCliente";
 import crearNuevoCliente from "../../../lib/clientes";
+import { crearPerro } from "../../../lib/perros";
 import { useRouter } from "next/navigation";
 
 export default function ClientesPageClient({clientes}) {
@@ -18,7 +19,7 @@ export default function ClientesPageClient({clientes}) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [formError, setFormError] = useState("")
 
-    async function handleSubmit(e) {
+    async function handleSubmit(e, perros = []) {
         e.preventDefault();
         setIsSubmitting(true);
 
@@ -51,6 +52,14 @@ export default function ClientesPageClient({clientes}) {
 
         try {
             const nuevoCliente = await crearNuevoCliente(data)
+            await Promise.all(
+                perros.map(p => crearPerro({
+                    cliente_id: nuevoCliente.id,
+                    nombre: p.nombre,
+                    raza: p.raza || null,
+                    fecha_nacimiento: p.fecha_nacimiento || null,
+                }))
+            )
             setIsModalOpen(false)
             router.push(`/dashboard/clientes/${nuevoCliente.id}`)
         } catch (error) {

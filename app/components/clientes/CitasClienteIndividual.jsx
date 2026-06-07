@@ -1,6 +1,7 @@
 'use client'
 
 import { FiCalendar, FiClock, FiPlus, FiEdit, FiCreditCard, FiDollarSign, FiRepeat, FiTrash2 } from 'react-icons/fi'
+import { PiDogBold } from 'react-icons/pi'
 import { FaWhatsapp } from 'react-icons/fa'
 import { useState } from 'react'
 import Modal from '../ui/Modal'
@@ -8,7 +9,7 @@ import CitaForm from '../calendario/CitaForm'
 import { crearCita, editarCita, eliminarCita } from '@/lib/citas'
 import { useRouter, useParams } from 'next/navigation'
 
-const CitasClienteIndividual = ({ citas, cliente }) => {
+const CitasClienteIndividual = ({ citas, cliente, perros = [] }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedCita, setSelectedCita] = useState(null)
@@ -181,6 +182,12 @@ const CitasClienteIndividual = ({ citas, cliente }) => {
                           {metodoPagoLabel[cita.metodo_pago]}
                         </span>
                       )}
+                      {cita.perros?.nombre && (
+                        <span className="flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-lg">
+                          <PiDogBold size={10} />
+                          {cita.perros.nombre}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -234,9 +241,10 @@ const CitasClienteIndividual = ({ citas, cliente }) => {
         titulo={selectedCita ? 'Editar Cita' : 'Agregar Nueva Cita'} 
         mensaje={selectedCita ? 'Modifica la información de la cita.' : 'Completa la información para agregar una nueva cita a este cliente.'}
       >
-        <CitaForm 
+        <CitaForm
           initialData={selectedCita || {}}
           fixedClienteId={clienteId}
+          perros={perros}
           isSubmitting={isSubmitting}
           error={error}
           onCancel={() => setIsModalOpen(false)}
