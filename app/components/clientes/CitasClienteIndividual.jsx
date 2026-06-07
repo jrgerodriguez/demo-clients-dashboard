@@ -147,17 +147,17 @@ const CitasClienteIndividual = ({ citas, cliente }) => {
                 key={cita.id}
                 className="flex flex-col gap-3 px-4 py-3 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/60 transition-all duration-150"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl shrink-0 border py-1.5
-                      ${completado ? 'bg-emerald-50 border-emerald-200' : 'bg-blue-50 border-blue-200'}`}
-                    >
-                      <span className={`text-[9px] font-bold uppercase tracking-tight ${completado ? 'text-emerald-500' : 'text-blue-400'}`}>{mes}</span>
-                      <span className={`text-lg font-bold leading-none my-0.5 ${completado ? 'text-emerald-700' : 'text-blue-700'}`}>{dia}</span>
-                      <span className={`text-[8px] font-semibold ${completado ? 'text-emerald-400' : 'text-blue-300'}`}>{anio}</span>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl shrink-0 border py-1.5
+                    ${completado ? 'bg-emerald-50 border-emerald-200' : 'bg-blue-50 border-blue-200'}`}
+                  >
+                    <span className={`text-[9px] font-bold uppercase tracking-tight ${completado ? 'text-emerald-500' : 'text-blue-400'}`}>{mes}</span>
+                    <span className={`text-lg font-bold leading-none my-0.5 ${completado ? 'text-emerald-700' : 'text-blue-700'}`}>{dia}</span>
+                    <span className={`text-[8px] font-semibold ${completado ? 'text-emerald-400' : 'text-blue-300'}`}>{anio}</span>
+                  </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="flex items-center gap-1.5 text-sm font-bold text-slate-800">
                         <FiClock size={12} className="text-slate-400" />
                         {formatearHora(cita.hora_inicio)}
@@ -166,26 +166,25 @@ const CitasClienteIndividual = ({ citas, cliente }) => {
                       <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
                         {cita.duracion} min
                       </span>
-                      {cita.metodo_pago && (
-                        <>
-                          <span className="text-slate-300 text-xs">·</span>
-                          <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 bg-slate-50 px-2 py-1 rounded-lg">
-                            <PagoIcono metodo={cita.metodo_pago} />
-                            {metodoPagoLabel[cita.metodo_pago]}
-                          </span>
-                        </>
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      {cita.costo && (
+                        <span className="text-sm font-bold text-black">${Number(cita.costo).toFixed(2)}</span>
                       )}
-                      <span className="text-slate-300 text-xs">·</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${estadoBadge(cita.estado)}`}>
+                        {cita.estado}
+                      </span>
+                      {cita.metodo_pago && (
+                        <span className="flex items-center gap-1 text-[11px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg">
+                          <PagoIcono metodo={cita.metodo_pago} />
+                          {metodoPagoLabel[cita.metodo_pago]}
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {cita.costo && (
-                      <span className="flex items-center gap-1.5 text-sm font-bold text-black bg-slate-50 px-2 py-1 rounded-lg">${Number(cita.costo).toFixed(2)}</span>
-                    )}
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${estadoBadge(cita.estado)} mr-1`}>
-                      {cita.estado}
-                    </span>
+                  <div className="flex items-center gap-0.5 shrink-0">
                     {cita.estado === 'pendiente' && cliente?.telefono && (
                       <a
                         href={generarLinkWhatsapp(cita)}
