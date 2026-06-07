@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { FcGoogle } from 'react-icons/fc'
 import { FiUsers, FiShield, FiBarChart2 } from 'react-icons/fi'
 import { createClient } from '@/lib/supabase/client'
@@ -23,7 +23,7 @@ function FiCalendar(props: React.SVGProps<SVGSVGElement> & { size?: number }) {
   )
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const [loading, setLoading] = useState(false)
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
@@ -40,6 +40,35 @@ export default function LoginPage() {
     setLoading(false)
   }
 
+  return (
+    <>
+      {error === 'no_autorizado' && (
+        <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400 flex items-start gap-2">
+          <FiShield size={16} className="shrink-0 mt-0.5" />
+          Tu cuenta no tiene acceso al sistema. Contacta al administrador.
+        </div>
+      )}
+
+      {error === 'auth_error' && (
+        <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">
+          Ocurrió un error al iniciar sesión. Intenta de nuevo.
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={handleGoogleLogin}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white hover:bg-slate-50 rounded-xl text-sm font-semibold text-slate-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+      >
+        <FcGoogle size={20} />
+        {loading ? 'Redirigiendo...' : 'Continuar con Google'}
+      </button>
+    </>
+  )
+}
+
+export default function LoginPage() {
   return (
     <main className="min-h-screen bg-slate-900 flex">
 
@@ -87,28 +116,11 @@ export default function LoginPage() {
           <h2 className="text-2xl font-bold text-white mb-1">Bienvenido</h2>
           <p className="text-slate-400 text-sm mb-8">Inicia sesión para continuar</p>
 
-          {error === 'no_autorizado' && (
-            <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400 flex items-start gap-2">
-              <FiShield size={16} className="shrink-0 mt-0.5" />
-              Tu cuenta no tiene acceso al sistema. Contacta al administrador.
-            </div>
-          )}
-
-          {error === 'auth_error' && (
-            <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">
-              Ocurrió un error al iniciar sesión. Intenta de nuevo.
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white hover:bg-slate-50 rounded-xl text-sm font-semibold text-slate-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-          >
-            <FcGoogle size={20} />
-            {loading ? 'Redirigiendo...' : 'Continuar con Google'}
-          </button>
+          <Suspense fallback={
+            <div className="w-full py-3 rounded-xl bg-white/10 animate-pulse" />
+          }>
+            <LoginForm />
+          </Suspense>
 
           <div className="flex items-center gap-3 mt-8">
             <div className="flex-1 h-px bg-slate-700/60" />
