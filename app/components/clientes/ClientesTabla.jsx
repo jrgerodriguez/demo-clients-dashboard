@@ -5,8 +5,15 @@ import { FiChevronRight, FiChevronLeft, FiSearch } from 'react-icons/fi'
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
+const ORDENAR = [
+  { key: 'az',       label: 'A–Z' },
+  { key: 'za',       label: 'Z–A' },
+  { key: 'recientes', label: 'Recientes' },
+]
+
 export default function ClientesTabla({ clientes }) {
-  const [search, setSearch] = useState("")
+  const [search, setSearch]   = useState("")
+  const [orden, setOrden]     = useState("az")
   const [filtered, setFiltered] = useState(clientes)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 20
@@ -14,14 +21,17 @@ export default function ClientesTabla({ clientes }) {
 
   useEffect(() => {
     const term = search.toLowerCase().trim()
-    const data = (!term ? clientes : clientes.filter(c =>
+    let data = !term ? [...clientes] : clientes.filter(c =>
       (c.nombre_completo ?? "").toLowerCase().includes(term) ||
       (c.email ?? "").toLowerCase().includes(term) ||
       (c.telefono ?? "").includes(term)
-    )).sort((a, b) => a.nombre_completo.toLowerCase().localeCompare(b.nombre_completo.toLowerCase()))
+    )
+    if (orden === 'az')       data.sort((a, b) => a.nombre_completo.toLowerCase().localeCompare(b.nombre_completo.toLowerCase()))
+    if (orden === 'za')       data.sort((a, b) => b.nombre_completo.toLowerCase().localeCompare(a.nombre_completo.toLowerCase()))
+    if (orden === 'recientes') data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     setFiltered(data)
     setCurrentPage(1)
-  }, [search, clientes])
+  }, [search, orden, clientes])
 
   const indexOfLastItem  = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
@@ -36,8 +46,8 @@ export default function ClientesTabla({ clientes }) {
   return (
     <div className="space-y-5">
 
-      {/* Search bar */}
-      <div className="flex gap-3">
+      {/* Search + filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
           <input
@@ -47,6 +57,17 @@ export default function ClientesTabla({ clientes }) {
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
           />
+        </div>
+        <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-sm shrink-0">
+          {ORDENAR.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setOrden(key)}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${orden === key ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
         {search && (
           <button

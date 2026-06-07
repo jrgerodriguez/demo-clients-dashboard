@@ -1,13 +1,14 @@
 'use client'
 
 import { FiCalendar, FiClock, FiPlus, FiEdit, FiCreditCard, FiDollarSign, FiRepeat, FiTrash2 } from 'react-icons/fi'
+import { FaWhatsapp } from 'react-icons/fa'
 import { useState } from 'react'
 import Modal from '../ui/Modal'
 import CitaForm from '../calendario/CitaForm'
 import { crearCita, editarCita, eliminarCita } from '@/lib/citas'
 import { useRouter, useParams } from 'next/navigation'
 
-const CitasClienteIndividual = ({ citas }) => {
+const CitasClienteIndividual = ({ citas, cliente }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedCita, setSelectedCita] = useState(null)
@@ -33,6 +34,15 @@ const CitasClienteIndividual = ({ citas }) => {
     estado === 'completado'
       ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
       : 'bg-amber-50 text-amber-700 border border-amber-200'
+
+  function generarLinkWhatsapp(cita) {
+    const nombre = cliente?.nombre_completo?.split(' ')[0] || 'cliente'
+    const fecha  = formatearFecha(cita.fecha)
+    const hora   = formatearHora(cita.hora_inicio)
+    const msg    = `Hola ${nombre}, te recordamos que tienes una cita el ${fecha} a las ${hora}. ¡Te esperamos!`
+    const tel    = (cliente?.telefono || '').replace(/\D/g, '')
+    return `https://wa.me/503${tel}?text=${encodeURIComponent(msg)}`
+  }
 
   const PagoIcono = ({ metodo }) => {
     if (metodo === 'tarjeta') return <FiCreditCard size={10} className="text-blue-500" />
@@ -171,21 +181,30 @@ const CitasClienteIndividual = ({ citas }) => {
 
                   <div className="flex items-center gap-1.5 shrink-0">
                     {cita.costo && (
-                      <>
-                        <span className="flex items-center gap-1.5 text-sm font-bold text-black bg-slate-50 px-2 py-1 rounded-lg">${Number(cita.costo).toFixed(2)}</span>
-                      </>
+                      <span className="flex items-center gap-1.5 text-sm font-bold text-black bg-slate-50 px-2 py-1 rounded-lg">${Number(cita.costo).toFixed(2)}</span>
                     )}
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${estadoBadge(cita.estado)} mr-1`}>
                       {cita.estado}
                     </span>
-                    <button 
+                    {cita.estado === 'pendiente' && cliente?.telefono && (
+                      <a
+                        href={generarLinkWhatsapp(cita)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Enviar recordatorio por WhatsApp"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                      >
+                        <FaWhatsapp size={14} />
+                      </a>
+                    )}
+                    <button
                       onClick={() => handleEdit(cita)}
                       type="button" title="Editar cita"
                       className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
                     >
                       <FiEdit size={14} />
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDeleteClick(cita)}
                       type="button" title="Eliminar cita"
                       className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"

@@ -188,7 +188,7 @@ export default function DetallesClienteIndividual({ cliente, citas }) {
         </div>
 
         {/* Citas */}
-        <CitasClienteIndividual citas={citas} />
+        <CitasClienteIndividual citas={citas} cliente={cliente} />
       </div>
 
       {/* Edit panel */}
