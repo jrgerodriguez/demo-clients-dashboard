@@ -108,17 +108,17 @@ export default function GestionUsuarios({ usuarios }) {
         </div>
         <div className="divide-y divide-slate-50">
           {usuarios.map(u => (
-            <div key={u.email} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50/60 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold ${u.rol === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+            <div key={u.email} className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 py-4 gap-2 hover:bg-slate-50/60 transition-colors">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${u.rol === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
                   {u.email.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-800">{u.email}</p>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">{u.email}</p>
                   {u.nombre && <p className="text-xs text-slate-400">{u.nombre}</p>}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                 {u.email === miEmail ? (
                   <span className="text-xs text-slate-400 italic px-2">Tu cuenta</span>
                 ) : (

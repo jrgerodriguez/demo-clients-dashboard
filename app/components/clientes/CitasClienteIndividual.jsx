@@ -183,34 +183,37 @@ const CitasClienteIndividual = ({ citas, cliente }) => {
                       )}
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex items-center gap-0.5 shrink-0">
-                    {cita.estado === 'pendiente' && cliente?.telefono && (
-                      <a
-                        href={generarLinkWhatsapp(cita)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Enviar recordatorio por WhatsApp"
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
-                      >
-                        <FaWhatsapp size={14} />
-                      </a>
-                    )}
-                    <button
-                      onClick={() => handleEdit(cita)}
-                      type="button" title="Editar cita"
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                <div className="flex items-center justify-end gap-1 pt-2 border-t border-slate-100">
+                  {cita.estado === 'pendiente' && cliente?.telefono && (
+                    <a
+                      href={generarLinkWhatsapp(cita)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Enviar recordatorio por WhatsApp"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
                     >
-                      <FiEdit size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(cita)}
-                      type="button" title="Eliminar cita"
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                    >
-                      <FiTrash2 size={14} />
-                    </button>
-                  </div>
+                      <FaWhatsapp size={14} />
+                      <span>WhatsApp</span>
+                    </a>
+                  )}
+                  <button
+                    onClick={() => handleEdit(cita)}
+                    type="button" title="Editar cita"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                  >
+                    <FiEdit size={13} />
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(cita)}
+                    type="button" title="Eliminar cita"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all"
+                  >
+                    <FiTrash2 size={13} />
+                    <span>Eliminar</span>
+                  </button>
                 </div>
 
                 {cita.notas && (
