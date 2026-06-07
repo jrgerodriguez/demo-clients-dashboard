@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/client'
 import { useRol } from '@/app/context/RolContext'
 
 const userLinks = [
-  { href: '/dashboard/clientes',   label: 'Clientes',   icon: FiUsers },
   { href: '/dashboard/calendario', label: 'Calendario', icon: FiCalendar },
 ]
 

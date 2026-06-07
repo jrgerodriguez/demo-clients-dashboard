@@ -14,7 +14,7 @@ export async function GET(request: Request) {
       if (user?.email) {
         const { data: autorizado } = await supabase
           .from('usuarios_autorizados')
-          .select('email')
+          .select('email, rol')
           .eq('email', user.email)
           .maybeSingle()
 
@@ -22,6 +22,9 @@ export async function GET(request: Request) {
           await supabase.auth.signOut()
           return NextResponse.redirect(new URL('/login?error=no_autorizado', origin))
         }
+
+        const destino = autorizado.rol === 'user' ? '/dashboard/calendario' : '/dashboard'
+        return NextResponse.redirect(new URL(destino, origin))
       }
 
       return NextResponse.redirect(new URL('/dashboard', origin))

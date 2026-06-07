@@ -36,6 +36,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
+  if (user && isDashboardRoute) {
+    const { data: autorizado } = await supabase
+      .from('usuarios_autorizados')
+      .select('rol')
+      .eq('email', user.email)
+      .maybeSingle()
+
+    const isUser = autorizado?.rol === 'user'
+    const isCalendario = request.nextUrl.pathname.startsWith('/dashboard/calendario')
+
+    if (isUser && !isCalendario) {
+      return NextResponse.redirect(new URL('/dashboard/calendario', request.url))
+    }
+  }
+
   return supabaseResponse
 }
 

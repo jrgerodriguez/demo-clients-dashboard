@@ -15,6 +15,7 @@ import CitaForm from './CitaForm'
 import { crearCita, editarCita, eliminarCita } from '@/lib/citas'
 import { useRouter } from 'next/navigation'
 import EliminarClienteModal from '../clientes/EliminarClienteModal'
+import { useRol } from '@/app/context/RolContext'
 
 // Helper to get YYYY-MM-DD in local time
 const getLocalDateString = (date) => {
@@ -36,6 +37,8 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const router = useRouter()
+  const { rol } = useRol()
+  const isAdmin = rol === 'admin'
 
   // Ensure local time on client side to avoid SSR/Vercel date mismatch
   useEffect(() => {
@@ -223,18 +226,20 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
               <FiChevronRight size={18} />
             </button>
           </div>
-          <button 
-            onClick={() => {
-              setSelectedCita(null)
-              setSelectedDate(getLocalDateString(new Date()))
-              setIsModalOpen(true)
-            }}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-          >
-            <FiPlus size={16} />
-            <span className="hidden sm:inline">Nueva Cita</span>
-            <span className="sm:hidden">Cita</span>
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => {
+                setSelectedCita(null)
+                setSelectedDate(getLocalDateString(new Date()))
+                setIsModalOpen(true)
+              }}
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            >
+              <FiPlus size={16} />
+              <span className="hidden sm:inline">Nueva Cita</span>
+              <span className="sm:hidden">Cita</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -267,32 +272,35 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
               const isToday = isClient && date.toDateString() === new Date().toDateString()
               
               return (
-                <div 
-                  key={dateStr} 
-                  onClick={() => handleAddCita(date)}
-                  className="min-h-[120px] p-2 border-r border-b border-slate-100 hover:bg-slate-50/50 transition-colors cursor-pointer group relative"
+                <div
+                  key={dateStr}
+                  onClick={() => isAdmin && handleAddCita(date)}
+                  className={`min-h-[120px] p-2 border-r border-b border-slate-100 hover:bg-slate-50/50 transition-colors ${isAdmin ? 'cursor-pointer' : ''} group relative`}
                 >
                   <span className={`inline-flex items-center justify-center w-7 h-7 text-xs font-bold rounded-lg mb-1 ${isToday ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 group-hover:text-blue-600'}`}>
                     {date.getDate()}
                   </span>
-                  
+
                   <div className="space-y-1">
                     {dayCitas.map(cita => (
-                      <div 
+                      <div
                         key={cita.id}
-                        onClick={(e) => handleEditCita(e, cita)}
+                        onClick={(e) => isAdmin && handleEditCita(e, cita)}
                         className={`group/item flex flex-col p-1.5 rounded-lg border text-[10px] leading-tight transition-all
-                          ${cita.estado === 'completado' 
-                            ? 'bg-emerald-50 border-emerald-100 text-emerald-700' 
-                            : 'bg-blue-50 border-blue-100 text-blue-700'}`}
+                          ${cita.estado === 'completado'
+                            ? 'bg-emerald-50 border-emerald-100 text-emerald-700'
+                            : 'bg-blue-50 border-blue-100 text-blue-700'}
+                          ${isAdmin ? 'cursor-pointer' : ''}`}
                       >
                         <div className="flex items-center justify-between gap-1 overflow-hidden">
                           <span className="font-bold truncate">{cita.clientes?.nombre_completo || 'Cliente'}</span>
-                          <div className="flex opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity items-center gap-1 shrink-0">
-                             <button onClick={(e) => handleDeleteClick(e, cita)} className="p-0.5 hover:text-red-600 transition-colors">
+                          {isAdmin && (
+                            <div className="flex opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity items-center gap-1 shrink-0">
+                              <button onClick={(e) => handleDeleteClick(e, cita)} className="p-0.5 hover:text-red-600 transition-colors">
                                 <FiTrash2 size={10} />
-                             </button>
-                          </div>
+                              </button>
+                            </div>
+                          )}
                         </div>
                         <span className="opacity-70 flex items-center gap-1 mt-0.5">
                           <FiClock size={10} /> {cita.hora_inicio.substring(0, 5)}
@@ -301,11 +309,13 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
                     ))}
                   </div>
 
-                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                      <FiPlus size={14} />
+                  {isAdmin && (
+                    <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                        <FiPlus size={14} />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )
             })}
@@ -347,43 +357,48 @@ export default function CalendarioContainer({ inicialCitas, clientes }) {
                  const dayCitas = citasByDate[dateStr] || []
                  const isToday = isClient && date.toDateString() === new Date().toDateString()
                  return (
-                   <div 
-                    key={dateStr} 
-                    onClick={() => handleAddCita(date)}
-                    className="p-3 border-r border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors cursor-pointer space-y-2"
+                   <div
+                    key={dateStr}
+                    onClick={() => isAdmin && handleAddCita(date)}
+                    className={`p-3 border-r border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors ${isAdmin ? 'cursor-pointer' : ''} space-y-2`}
                    >
                      {dayCitas.map(cita => (
-                       <div 
+                       <div
                         key={cita.id}
-                        onClick={(e) => handleEditCita(e, cita)}
+                        onClick={(e) => isAdmin && handleEditCita(e, cita)}
                         className={`group/item p-3 rounded-xl border transition-all hover:shadow-md
-                          ${cita.estado === 'completado' 
-                            ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
-                            : 'bg-blue-50 border-blue-100 text-blue-800'}`}
+                          ${cita.estado === 'completado'
+                            ? 'bg-emerald-50 border-emerald-100 text-emerald-800'
+                            : 'bg-blue-50 border-blue-100 text-blue-800'}
+                          ${isAdmin ? 'cursor-pointer' : ''}`}
                        >
                          <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-1.5 gap-1 lg:gap-0">
                            <span className="text-[10px] font-bold opacity-60 flex items-center gap-1">
                              <FiClock size={12} /> {cita.hora_inicio.substring(0, 5)}
                            </span>
-                           <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity">
-                              <button onClick={(e) => handleEditCita(e, cita)} className="p-1 hover:text-blue-600 transition-colors">
-                                <FiEdit size={12} />
-                              </button>
-                              <button onClick={(e) => handleDeleteClick(e, cita)} className="p-1 hover:text-red-600 transition-colors">
-                                <FiTrash2 size={12} />
-                              </button>
-                           </div>
+                           {isAdmin && (
+                             <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity">
+                               <button onClick={(e) => handleEditCita(e, cita)} className="p-1 hover:text-blue-600 transition-colors">
+                                 <FiEdit size={12} />
+                               </button>
+                               <button onClick={(e) => handleDeleteClick(e, cita)} className="p-1 hover:text-red-600 transition-colors">
+                                 <FiTrash2 size={12} />
+                               </button>
+                             </div>
+                           )}
                          </div>
                          <p className="text-xs font-bold leading-tight line-clamp-2">
                            {cita.clientes?.nombre_completo || 'Cliente'}
                          </p>
                        </div>
                      ))}
-                     <div className="flex justify-center p-2 opacity-0 hover:opacity-100 transition-opacity">
-                        <div className="w-8 h-8 rounded-full border border-dashed border-slate-300 flex items-center justify-center text-slate-400">
-                          <FiPlus size={16} />
-                        </div>
-                     </div>
+                     {isAdmin && (
+                       <div className="flex justify-center p-2 opacity-0 hover:opacity-100 transition-opacity">
+                         <div className="w-8 h-8 rounded-full border border-dashed border-slate-300 flex items-center justify-center text-slate-400">
+                           <FiPlus size={16} />
+                         </div>
+                       </div>
+                     )}
                    </div>
                  )
                })}
