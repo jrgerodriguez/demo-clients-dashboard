@@ -10,7 +10,7 @@ export default function MobileNav({ onOpenSidebar }) {
           <FiBarChart2 className="text-white" size={16} />
         </div>
         <div>
-          <p className="text-white font-bold text-xs leading-none tracking-tight">CRM Pro</p>
+          <p className="text-white font-bold text-xs leading-none tracking-tight">Clientes Pro</p>
         </div>
       </div>
       
