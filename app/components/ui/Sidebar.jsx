@@ -1,14 +1,20 @@
 'use client'
-import { FiHome, FiUsers, FiCalendar, FiBarChart2, FiUserX, FiLogOut, FiDollarSign, FiTrendingUp } from 'react-icons/fi'
+import { FiHome, FiUsers, FiCalendar, FiBarChart2, FiUserX, FiLogOut, FiDollarSign, FiTrendingUp, FiActivity, FiShield } from 'react-icons/fi'
 import Link from "next/link"
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useRol } from '@/app/context/RolContext'
 
-const links = [
-  { href: '/dashboard',           label: 'Dashboard',   icon: FiHome },
-  { href: '/dashboard/clientes',  label: 'Clientes',    icon: FiUsers },
-  { href: '/dashboard/calendario',label: 'Calendario',  icon: FiCalendar },
-  { href: '/dashboard/clientes-inactivos', label: 'Inactivos', icon: FiUserX },
+const userLinks = [
+  { href: '/dashboard/clientes',   label: 'Clientes',   icon: FiUsers },
+  { href: '/dashboard/calendario', label: 'Calendario', icon: FiCalendar },
+]
+
+const adminLinks = [
+  { href: '/dashboard',                      label: 'Dashboard',  icon: FiHome },
+  { href: '/dashboard/clientes',             label: 'Clientes',   icon: FiUsers },
+  { href: '/dashboard/calendario',           label: 'Calendario', icon: FiCalendar },
+  { href: '/dashboard/clientes-inactivos',   label: 'Inactivos',  icon: FiUserX },
 ]
 
 const reporteLinks = [
@@ -16,10 +22,18 @@ const reporteLinks = [
   { href: '/dashboard/reportes/agenda',       label: 'Agenda',       icon: FiTrendingUp },
 ]
 
+const adminExtraLinks = [
+  { href: '/dashboard/logs',          label: 'Actividad', icon: FiActivity },
+  { href: '/dashboard/configuracion', label: 'Equipo',     icon: FiShield },
+]
+
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname()
-  const router = useRouter()
+  const router   = useRouter()
+  const { rol }  = useRol()
+  const isAdmin  = rol === 'admin'
+  const links    = isAdmin ? adminLinks : userLinks
 
   async function handleLogout() {
     const supabase = createClient()
@@ -93,31 +107,38 @@ export default function Sidebar({ isOpen, onClose }) {
             )
           })}
 
-          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider px-3 pt-5 pb-3">
-            Reportes
-          </p>
-
-          {reporteLinks.map(({ href, label, icon: Icon }) => {
-            const isActive = pathname === href || pathname.startsWith(`${href}/`)
-            return (
-              <Link
-                key={label}
-                href={href}
-                onClick={onClose}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                  transition-all duration-150
-                  ${isActive
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
-                  }
-                `}
-              >
-                <Icon size={18} className={isActive ? 'text-white' : 'text-slate-500'} />
-                {label}
-              </Link>
-            )
-          })}
+          {isAdmin && (
+            <>
+              <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider px-3 pt-5 pb-3">
+                Reportes
+              </p>
+              {reporteLinks.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href || pathname.startsWith(`${href}/`)
+                return (
+                  <Link key={label} href={href} onClick={onClose}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${isActive ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'}`}
+                  >
+                    <Icon size={18} className={isActive ? 'text-white' : 'text-slate-500'} />
+                    {label}
+                  </Link>
+                )
+              })}
+              <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider px-3 pt-5 pb-3">
+                Sistema
+              </p>
+              {adminExtraLinks.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href || pathname.startsWith(`${href}/`)
+                return (
+                  <Link key={label} href={href} onClick={onClose}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${isActive ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'}`}
+                  >
+                    <Icon size={18} className={isActive ? 'text-white' : 'text-slate-500'} />
+                    {label}
+                  </Link>
+                )
+              })}
+            </>
+          )}
         </nav>
 
         {/* Footer */}
