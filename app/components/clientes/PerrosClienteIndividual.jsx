@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi'
+import { createPortal } from 'react-dom'
+import { FiPlus, FiEdit, FiTrash2, FiCamera, FiX } from 'react-icons/fi'
 import { PiDogBold } from 'react-icons/pi'
 import Modal from '../ui/Modal'
 import { crearPerro, editarPerro, eliminarPerro } from '@/lib/perros'
+import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 function calcularEdad(fechaNacimiento) {
@@ -26,6 +28,30 @@ function formatearFecha(fecha) {
   })
 }
 
+async function subirFotoPerro(file, perroId) {
+  const supabase = createClient()
+  const ext = file.name.split('.').pop()
+  const path = `${perroId}/${Date.now()}.${ext}`
+  const { error } = await supabase.storage.from('perros').upload(path, file, { upsert: true })
+  if (error) throw error
+  const { data } = supabase.storage.from('perros').getPublicUrl(path)
+  return data.publicUrl
+}
+
+function pathDesdeUrl(fotoUrl) {
+  const marker = '/perros/'
+  const idx = fotoUrl.indexOf(marker)
+  if (idx === -1) return null
+  return fotoUrl.slice(idx + marker.length)
+}
+
+async function eliminarFotoStorage(fotoUrl) {
+  const path = pathDesdeUrl(fotoUrl)
+  if (!path) return
+  const supabase = createClient()
+  await supabase.storage.from('perros').remove([path])
+}
+
 const EMPTY_FORM = { nombre: '', raza: '', fecha_nacimiento: '' }
 
 export default function PerrosClienteIndividual({ perros, clienteId }) {
@@ -33,13 +59,20 @@ export default function PerrosClienteIndividual({ perros, clienteId }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedPerro, setSelectedPerro] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [fotoFile, setFotoFile] = useState(null)
+  const [fotoPreview, setFotoPreview] = useState(null)
+  const [fotoEliminada, setFotoEliminada] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
+  const [fotoAmpliada, setFotoAmpliada] = useState(null)
   const router = useRouter()
 
   function openAdd() {
     setSelectedPerro(null)
     setForm(EMPTY_FORM)
+    setFotoFile(null)
+    setFotoPreview(null)
+    setFotoEliminada(false)
     setError(null)
     setIsModalOpen(true)
   }
@@ -47,13 +80,30 @@ export default function PerrosClienteIndividual({ perros, clienteId }) {
   function openEdit(perro) {
     setSelectedPerro(perro)
     setForm({ nombre: perro.nombre, raza: perro.raza || '', fecha_nacimiento: perro.fecha_nacimiento || '' })
+    setFotoFile(null)
+    setFotoPreview(perro.foto_url || null)
+    setFotoEliminada(false)
     setError(null)
     setIsModalOpen(true)
+  }
+
+  function quitarFoto() {
+    setFotoFile(null)
+    setFotoPreview(null)
+    setFotoEliminada(true)
   }
 
   function openDelete(perro) {
     setSelectedPerro(perro)
     setIsDeleteModalOpen(true)
+  }
+
+  function handleFotoChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setFotoFile(file)
+    setFotoPreview(URL.createObjectURL(file))
+    setFotoEliminada(false)
   }
 
   async function handleSubmit(e) {
@@ -68,10 +118,19 @@ export default function PerrosClienteIndividual({ perros, clienteId }) {
         fecha_nacimiento: form.fecha_nacimiento || null,
         cliente_id: clienteId,
       }
+      let perro = selectedPerro
       if (selectedPerro) {
         await editarPerro(selectedPerro.id, payload)
       } else {
-        await crearPerro(payload)
+        perro = await crearPerro(payload)
+      }
+      if (fotoFile) {
+        if (selectedPerro?.foto_url) await eliminarFotoStorage(selectedPerro.foto_url)
+        const fotoUrl = await subirFotoPerro(fotoFile, perro.id)
+        await editarPerro(perro.id, { foto_url: fotoUrl })
+      } else if (fotoEliminada && selectedPerro?.foto_url) {
+        await eliminarFotoStorage(selectedPerro.foto_url)
+        await editarPerro(perro.id, { foto_url: null })
       }
       setIsModalOpen(false)
       router.refresh()
@@ -84,6 +143,7 @@ export default function PerrosClienteIndividual({ perros, clienteId }) {
 
   async function handleDelete() {
     try {
+      if (selectedPerro.foto_url) await eliminarFotoStorage(selectedPerro.foto_url)
       await eliminarPerro(selectedPerro.id)
       setIsDeleteModalOpen(false)
       router.refresh()
@@ -127,9 +187,19 @@ export default function PerrosClienteIndividual({ perros, clienteId }) {
               className="flex flex-col gap-3 px-4 py-3 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/60 transition-all duration-150"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
-                  <PiDogBold className="text-amber-500" size={18} />
-                </div>
+                {perro.foto_url ? (
+                  <button
+                    type="button"
+                    onClick={() => setFotoAmpliada(perro.foto_url)}
+                    className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-amber-200"
+                  >
+                    <img src={perro.foto_url} alt={perro.nombre} className="w-full h-full object-cover" />
+                  </button>
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+                    <PiDogBold className="text-amber-500" size={18} />
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-bold text-slate-800">{perro.nombre}</p>
@@ -182,6 +252,28 @@ export default function PerrosClienteIndividual({ perros, clienteId }) {
         mensaje={selectedPerro ? 'Modifica los datos del perro.' : 'Ingresa los datos del perro.'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex flex-col items-center gap-2">
+            <label className="relative w-24 h-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-300 transition-colors group">
+              {fotoPreview ? (
+                <img src={fotoPreview} alt="Foto del perro" className="w-full h-full object-cover" />
+              ) : (
+                <div className="flex flex-col items-center gap-1 text-slate-400 group-hover:text-blue-500">
+                  <FiCamera size={20} />
+                  <span className="text-[10px] font-semibold">Foto</span>
+                </div>
+              )}
+              <input type="file" accept="image/*" onChange={handleFotoChange} className="hidden" />
+            </label>
+            {fotoPreview && (
+              <button
+                type="button"
+                onClick={quitarFoto}
+                className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors"
+              >
+                Eliminar foto
+              </button>
+            )}
+          </div>
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1.5">
               Nombre <span className="text-red-500">*</span>
@@ -267,6 +359,28 @@ export default function PerrosClienteIndividual({ perros, clienteId }) {
           </div>
         </div>
       </Modal>
+
+      {/* Foto ampliada */}
+      {fotoAmpliada && createPortal(
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-60 p-4"
+          onClick={() => setFotoAmpliada(null)}
+        >
+          <button
+            onClick={() => setFotoAmpliada(null)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+          >
+            <FiX size={22} />
+          </button>
+          <img
+            src={fotoAmpliada}
+            alt="Foto del perro"
+            className="max-w-full max-h-[85vh] rounded-2xl shadow-2xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>,
+        document.body
+      )}
     </div>
   )
 }
